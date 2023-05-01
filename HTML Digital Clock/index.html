@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Digital Clock</title>
+</head>
+<body>
+	<h1>Digital Clock</h1>
+	<h2 id="clock"></h2>
+	<button id="start">Start</button>
+	<button id="stop">Stop</button>
+	<script src="https://apis.google.com/js/api.js"></script>
+	<script>
+		// Google Sheets API credentials
+		var CLIENT_ID = 'YOUR_CLIENT_ID';
+		var API_KEY = 'YOUR_API_KEY';
+		var DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4"];
+		var SCOPES = "https://www.googleapis.com/auth/spreadsheets";
+
+		// Time variables
+		var start_time, end_time;
+		var time_diff = 0;
+
+		// Load Google Sheets API
+		gapi.load('client:auth2', initClient);
+
+		function initClient() {
+			gapi.client.init({
+				apiKey: API_KEY,
+				clientId: CLIENT_ID,
+				discoveryDocs: DISCOVERY_DOCS,
+				scope: SCOPES
+			}).then(function() {
+				// Listen for sign-in state changes.
+				gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+
+				// Handle the initial sign-in state.
+				updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+			}, function(error) {
+				console.log(JSON.stringify(error, null, 2));
+			});
+		}
+
+		// Update UI sign-in state changes
+		function updateSigninStatus(isSignedIn) {
+			if (isSignedIn) {
+				// User is signed in, enable button to start/stop timer
+				document.getElementById('start').disabled = false;
+				document.getElementById('stop').disabled = false;
+			} else {
+				// User is not signed in, disable button to start/stop timer
+				document.getElementById('start').disabled = true;
+				document.getElementById('stop').disabled = true;
+			}
+		}
+
+		// Start timer and record start time
+		document.getElementById('start').addEventListener('click', function() {
+			start_time = new Date().getTime();
+			document.getElementById('clock').innerHTML = new Date(start_time).toLocaleTimeString();
+		});
+
+		// Stop timer and record end time, then save to Google Sheets
+		document.getElementById('stop').addEventListener('click', function() {
+			end_time = new Date().getTime();
+			time_diff = end_time - start_time;
+			saveToGoogleSheets();
+			document.getElementById('clock').innerHTML = '00:00:00';
+		});
+
+		// Save time difference to Google Sheets
+		function saveToGoogleSheets() {
+			gapi.client.sheets.spreadsheets.values.append({
+				spreadsheetId: 'YOUR_SPREADSHEET_ID',
+				range: 'Sheet1!A1:B1',
+				valueInputOption: 'USER_ENTERED',
+				resource: {
+					values: [
+						[new Date(start_time).toLocaleString(), new Date(end_time).toLocaleString(), time_diff]
+					]
+				}
+			}).then(function(response) {
+				console.log(response);
+			}, function(error) {
+				console.log(JSON.stringify(error, null, 2));
+		

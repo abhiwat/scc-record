@@ -1,0 +1,87 @@
+Index.html
+<!DOCTYPE html>
+<html>
+<head>
+	<title>SCC Daily Resoultion</title>
+	<script>
+    var scc_start;
+    var scc_finish;
+    var start_time;
+	var end_time;
+	var hostname;
+    var it_alert;
+    var it_service;
+    var resolution;
+
+		function startTime() {
+			var today = new Date();
+			var h = today.getHours();
+			var m = today.getMinutes();
+			var s = today.getSeconds();
+			m = checkTime(m);
+			s = checkTime(s);
+			document.getElementById('clock').innerHTML = h + ":" + m + ":" + s;
+			var t = setTimeout(startTime, 500);
+		}
+
+		function checkTime(i) {
+			if (i < 10) {i = "0" + i};  // add zero in front of numbers < 10
+			return i;
+		}
+
+		function startClock() {
+			start_time = new Date();
+			hostname = document.getElementById("hostname").value;
+			it_alert = document.getElementById("it_alert").value;
+			it_service = document.getElementById("it_service").value;
+			resolution = document.getElementById("resolution").value;
+		}
+
+		function saveToSheet() {
+      end_time = new Date();
+			google.script.run.withSuccessHandler(saveToSheet() {
+				console.log("Data saved to sheet");
+			}).withFailureHandler(saveToSheet(error) {
+				console.log("Error saving data to sheet: " + error.message);
+			}).saveData(name, action, time);
+		}
+	</script>
+</head>
+<body onload="startTime()">
+	<div id="clock"></div>
+  	<h1>ระบบบันทึกข้อมูลของ SCC</h1>
+	<label for="hostname">Hostname:</label>
+	<input type="text" id="hostname" name="hostname">
+  	<label for="it_alert">Alert:</label>
+	<input type="text" id="it_alert" name="it_alert">
+	<label for="it_service">Service:</label>
+    <select name="it_service" id="it_service">
+      <option value="Choose">Choose...</option>
+      <option value="SmartUI">SmartUI</option>
+      <option value="CCBS">CCBS</option>
+      <option value="Vcare">Vcare</option>
+      <option value="Other">Other</option>
+    </select>
+  	<label for="resolution">Resolution:</label>
+    <select name="resolution" id="resolution">
+      <option value="Action">Action</option>
+      <option value="Escalation">Escalation</option>
+    </select>
+	<button onclick="startClock()">Start</button>
+	<button onclick="saveToSheet()">Finish</button>
+</body>
+</html>
+
+Code.GS
+function doGet(e) {
+  return HtmlService.createHtmlOutputFromFile("index");
+}
+
+function saveData(name, action, time) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var lastRow = sheet.getLastRow();
+
+  sheet.getRange(lastRow+1, 1).setValue(name);
+  sheet.getRange(lastRow+1, 2).setValue(action);
+  sheet.getRange(lastRow+1, 3).setValue(time);
+}

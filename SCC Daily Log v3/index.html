@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Digital Clock with Button</title>
+	<script>
+		function startTime() {
+			var today = new Date();
+			var h = today.getHours();
+			var m = today.getMinutes();
+			var s = today.getSeconds();
+			m = checkTime(m);
+			s = checkTime(s);
+			document.getElementById('clock').innerHTML = h + ":" + m + ":" + s;
+			var t = setTimeout(startTime, 500);
+		}
+
+		function checkTime(i) {
+			if (i < 10) {i = "0" + i};  // add zero in front of numbers < 10
+			return i;
+		}
+
+		var start_time;
+		var end_time;
+		var name;
+
+		function startClock() {
+			start_time = new Date();
+			name = document.getElementById("name").value;
+		}
+
+		function saveTime() {
+      end_time = new Date();
+			alert("Name: " + name + "\nStart Time: " + start_time + "\nEnd Time: " + end_time);
+		}
+	</script>
+</head>
+<body onload="startTime()">
+	<div id="clock"></div>
+	<label for="name">Name:</label>
+	<input type="text" id="name" name="name">
+	<button onclick="startClock()">Start</button>
+	<button onclick="saveTime()">Save Time</button>
+</body>
+</html>

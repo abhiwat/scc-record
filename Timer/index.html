@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <style>
+      #my_block{border:2px solid black;background-color:rgba(0,150,255,0.2);padding:10px 10px 10px 10px;}
+      #conv_block{border: 1px solid black;padding:10px 10px 10px 10px;}
+      .bttn_block{padding:5px 5px 0px 0px;}
+      .sndr_block {border:1px solid rgba(0,150,0,0.5);background-color:rgba(150,150,0,0.2);margin-bottom:2px;}
+    </style>
+  </head>
+  <body>
+  <form>
+    <div id="my_block" class="block form-group">
+      <div class="sndr_block">
+        <div id="myClock"></div>
+        <br />Timer Duration(minutes):
+        <br /><input id="txt1" type="text" size="4" class="action"/>
+        <select id="sel1" onChange="loadTxt('sel1','txt1');">
+          <option value="90000">1.5</option>
+          <option value="96000">1.6</option>
+          <option value="102000">1.7</option>
+          <option value="108000">1.8</option>
+          <option value="114000">1.9</option>
+          <option value="120000" selected>2.0</option>
+          <option value="126000">2.1</option>
+          <option value="132000">2.2</option>
+          <option value="138000">2.3</option>
+          <option value="144000">2.4</option>
+        </select>
+        <div id="cntdiv"></div>
+        <br /><strong>Timer Controls</strong>
+        <div class="bttn_block"><input type="button" value="Start" name="startShow" id="startShow" onClick="startmytimer();" class="red" /></div>
+        <div class="bttn_block"><input type="button" value="Stop" name="stopTimer" id="stopTimer" class="red" /></div>
+        <div class="bttn_block"><input type="button" value="Single Ping" name="changedata" id="chgData" class="red" onClick="changeData();" /></div>
+
+      </div>
+      <div id="btn-bar">
+        <br /><input type="button" value="Exit" onClick="google.script.host.close();" class="green" />
+      </div>
+    </div>
+  </form>
+    <script>
+    var idx=1;
+    var myInterval='';
+    var cnt=0;
+      $(function() {
+        $('#startTimer').click(startmytimer);
+        $('#stopTimer').click(stopTimer);
+        $('#txt1').val('120000');
+        startTime();
+      });
+
+      function startTime(){
+        var today = new Date();
+        var h = today.getHours();
+        var m = today.getMinutes();
+        var s = today.getSeconds();
+        m = checkTime(m);
+        s = checkTime(s);
+        document.getElementById('myClock').innerHTML =
+        h + ":" + m + ":" + s;
+        var t = setTimeout(startTime, 500);
+      }
+
+      function checkTime(i){
+        if (i < 10) {i = "0" + i};  // add zero in front of numbers < 10
+        return i;
+      }
+
+      function startmytimer(){
+        document.getElementById('cntdiv').innerHTML='<strong>Timer Started:</strong> ' + document.getElementById('myClock').innerHTML;
+        myInterval=setInterval(changeData, Number($('#txt1').val()));
+      }
+
+      function stopTimer(){
+        document.getElementById('cntdiv').innerHTML='Timer Stopped';
+        clearInterval(myInterval);
+      }
+
+      function loadTxt(from,to){
+        document.getElementById(to).value = document.getElementById(from).value;
+      }
+
+      function changeData(){
+        $('#txt1').css('background','#ffffcc');
+        google.script.run
+        .withSuccessHandler(updateDisplay)
+        .changeData();
+      }
+
+      function updateDisplay(t){
+        $('#txt1').css('background','#ffffff');
+        document.getElementById('cntdiv').innerHTML='<strong>Timer Running:</strong> Count= ' + ++cnt + ' <strong>Time:</strong> ' + t;
+      }
+
+     console.log('My Code');
+   </script>
+  </body>
+</html>
